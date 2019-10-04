@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+ 		http://www.springframework.org/schema/beans
+ 		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <import resource="loggers.xml"/>
+
+    <!--property: инжектим значение через сеттер. Значение name исходит из названия метода, отьрасывая 'set'-->
+    <bean id="client" class="beans.Client">
+        <constructor-arg index="0" value="2"/>
+        <constructor-arg index="1" value="Vasiliy"/>
+        <property name="greeting" value="hello"/>
+    </bean>
+
+    <bean id="App" class="App">
+        <constructor-arg index="0" ref="client"/>
+        <constructor-arg index="1" ref="CacheFileEventLogger"/>
+        <constructor-arg>
+            <map>
+                <entry key="INFO" value-ref="ConsoleEventLogger"/>
+                <entry key="ERROR" value-ref="CombainedEventLogger"/>
+            </map>
+        </constructor-arg>
+
+    </bean>
+
+    <!--ленивая инициализация. По умолчанию для прототайпа-->
+    <bean id="Event" class="beans.Event" scope="prototype" lazy-init="true">
+        <constructor-arg>
+            <bean class="java.util.Date"/>
+        </constructor-arg>
+        <constructor-arg ref="dateFormat"></constructor-arg>
+    </bean>
+
+
+    <!--DateFormat -абстрактный класс, чтоб создать его экземпляр нужно вызвать статик фактори метод-->
+    <bean id="dateFormat" class="java.text.DateFormat" factory-method="getDateInstance"></bean>
+
+
+</beans>

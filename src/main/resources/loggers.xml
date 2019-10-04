@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+ 		http://www.springframework.org/schema/beans
+ 		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+
+
+    <bean id = "FileEventLogger" class="loggers.FileEventLogger" init-method="init">
+        <constructor-arg value="logg.txt"/>
+    </bean>
+
+    <bean id="ConsoleEventLogger" class="loggers.ConsoleEventLogger"/>
+
+    <!--parent: можно задать родителя, и тогда можно определять атрибуты только дочернего бина(например обязательные в конструкторе)-->
+    <!--depends-on: говорим, что мы инициализируем этот бин только после указанного бина-->
+    <bean id = "CacheFileEventLogger" class="loggers.CacheFileEventLogger" destroy-method="destroy"
+          parent="FileEventLogger" depends-on="FileEventLogger">
+        <constructor-arg value="10"/>
+    </bean>
+
+    <bean id = "CombainedEventLogger" class="loggers.CombinedEventLogger">
+        <constructor-arg>
+            <list>
+                <ref bean="FileEventLogger"/>
+                <ref bean="ConsoleEventLogger"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+ </beans>
