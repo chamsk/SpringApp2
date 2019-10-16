@@ -1,6 +1,7 @@
 package beans;
 
 import java.text.DateFormat;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,12 +13,22 @@ public class Event {
     private Date date;
     private DateFormat dateFormat;
 
+    public static Boolean isDay(int start, int end){
+        LocalTime time = LocalTime.now();
+        return  time.getHour()>start&&time.getHour()<end;
+
+    }
+
 
     public Event(Date date, DateFormat dateFormat) {
         id = AUTO_ID.getAndIncrement();
 
         this.date = date;
         this.dateFormat = dateFormat;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
     public String getMsg() {

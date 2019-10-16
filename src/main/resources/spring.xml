@@ -1,29 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
- 		http://www.springframework.org/schema/beans
- 		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:p="http://www.springframework.org/schema/p"
+
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-3.2.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <import resource="loggers.xml"/>
+    <!--<context:annotation-config></context:annotation-config>-->
+    <context:component-scan base-package="beans"></context:component-scan>
+    <context:component-scan base-package="aspect"></context:component-scan>
+    <context:property-placeholder location="client.properties"/>
 
-    <!--property: инжектим значение через сеттер. Значение name исходит из названия метода, отьрасывая 'set'-->
-    <bean id="client" class="beans.Client">
-        <constructor-arg index="0" value="2"/>
-        <constructor-arg index="1" value="Vasiliy"/>
-        <property name="greeting" value="hello"/>
+    <aop:aspectj-autoproxy/>
+
+    <bean id="client" class="beans.Client"  c:fullName="${name}">
+        <property name="envirinment" value="#{systemEnvironment['USERNAME']}"/>
+        <constructor-arg index="0" value="${id}"/>
     </bean>
 
-    <bean id="App" class="App">
-        <constructor-arg index="0" ref="client"/>
-        <constructor-arg index="1" ref="CacheFileEventLogger"/>
+    <bean id="App" class="App" c:client-ref="client">
+        <constructor-arg index="1" value="#{T(beans.Event).isDay(8,17)?FileEventLogger:ConsoleEventLogger}"/>
         <constructor-arg>
             <map>
                 <entry key="INFO" value-ref="ConsoleEventLogger"/>
                 <entry key="ERROR" value-ref="CombainedEventLogger"/>
             </map>
         </constructor-arg>
-
     </bean>
 
     <!--ленивая инициализация. По умолчанию для прототайпа-->
@@ -39,4 +54,18 @@
     <bean id="dateFormat" class="java.text.DateFormat" factory-method="getDateInstance"></bean>
 
 
+    <!--подключение файла проперти-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:client.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="true"></property>
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"></property>
+    </bean>
+
+    <bean class="aspect.TestAspect" id="testAspect"></bean>
+
+    <bean id = "statisticAspect" class="aspect.StatisticAspect"/>
 </beans>

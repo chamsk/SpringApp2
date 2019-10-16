@@ -1,3 +1,5 @@
+import aspect.StatisticAspect;
+import aspect.TestAspect;
 import beans.Client;
 import beans.EventType;
 import beans.Event;
@@ -12,6 +14,10 @@ public class App {
     private Client client;
     private EventLogger defaultLogger;
     Map<EventType,EventLogger> map;
+
+
+
+
 
     public App(Client client,EventLogger defaultLogger, Map<EventType,EventLogger> map) {
         this.client = client;
@@ -33,8 +39,6 @@ public class App {
 
 
     }
-
-
     public static void main(String[] args) throws IOException {
 
         ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
@@ -49,6 +53,18 @@ public class App {
         event = context.getBean(Event.class);
         app.logEvent(event,"Some event for 3", null);
 
+        Client client = context.getBean("client",Client.class);
+        System.out.println(client.getEnvirinment());
+
+        StatisticAspect aspect = context.getBean("statisticAspect", StatisticAspect.class);
+        Map<String,Integer> aspectMap = aspect.getMap();
+        System.out.println("aspect: " + aspectMap.get("ConsoleEventLogger"));
+
         context.close();
     }
+
+
+
+
+
 }
